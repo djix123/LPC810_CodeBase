@@ -12,7 +12,9 @@ FPU = # -mfloat-abi=soft
 FILENAME = blinky
 LINKERSCRIPT = blinky.ld
 
-CFLAGS+= -Os --specs=nano.specs -ffunction-sections -fdata-sections -fno-builtin
+BUILD_DIR = ../build
+
+CFLAGS+= -g -Og --specs=nano.specs -ffunction-sections -fdata-sections -fno-builtin
 
 CC = ${CROSS}gcc
 LD = ${CROSS}ld
@@ -31,29 +33,32 @@ LDFLAGS += --gc-sections
 INC += -I../cmsis
 CFLAGS += $(INC) -D__USE_CMSIS # -DCLOCK_SETUP=1
 
-BLINKY_OBJS = main.o \
-              gpio.o \
-              uart.o \
-              mrt.o \
-              printf.o \
-              printf-retarget.o \
-              system_LPC8xx.o \
-              gcc_startup_lpc8xx.o
+BLINKY_OBJS = $(BUILD_DIR)/main.o \
+              $(BUILD_DIR)/gpio.o \
+              $(BUILD_DIR)/uart.o \
+              $(BUILD_DIR)/mrt.o \
+              $(BUILD_DIR)/printf.o \
+              $(BUILD_DIR)/printf-retarget.o \
+              $(BUILD_DIR)/system_LPC8xx.o \
+              $(BUILD_DIR)/gcc_startup_lpc8xx.o
 
-all: $(FILENAME).bin
+all: $(BUILD_DIR)/$(FILENAME).bin
 
-blinky.axf: $(FILENAME).ld $(BLINKY_OBJS)
+$(BUILD_DIR)/blinky.elf: $(FILENAME).ld $(BLINKY_OBJS)
 	@$(LD) -o $@ $(LDFLAGS) -T $(LINKERSCRIPT) $(BLINKY_OBJS) $(LIBGCC)
 	-@echo ""
-	@$(SIZE) $(FILENAME).axf
+	@$(SIZE) $(BUILD_DIR)/$(FILENAME).elf
 
 clean:
-	@rm -f *.o *.d
-	@rm -f $(FILENAME).axf $(FILENAME).hex $(FILENAME).bin
+	@rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.d
+	@rm -f $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).hex $(BUILD_DIR)/$(FILENAME).bin
 
-%.bin:%.axf
+$(BUILD_DIR)/%.o : %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	-@echo ""
 	-@echo "Generating $(FILENAME).hex (FlashMagic, etc.)"
-	@$(OBJCOPY) --strip-unneeded -O ihex $(FILENAME).axf $(FILENAME).hex
+	@$(OBJCOPY) --strip-unneeded -O ihex $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).hex
 	-@echo "Generating $(FILENAME).bin"
-	@$(OBJCOPY) --strip-unneeded -O binary $(FILENAME).axf $(FILENAME).bin
+	@$(OBJCOPY) --strip-unneeded -O binary $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).bin
