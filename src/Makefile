@@ -44,7 +44,7 @@ BLINKY_OBJS = $(BUILD_DIR)/main.o \
 
 all: $(BUILD_DIR)/$(FILENAME).bin
 
-$(BUILD_DIR)/blinky.elf: $(FILENAME).ld $(BLINKY_OBJS)
+$(BUILD_DIR)/blinky.elf: $(FILENAME).ld $(BLINKY_OBJS) Makefile | $(BUILD_DIR)
 	@$(LD) -o $@ $(LDFLAGS) -T $(LINKERSCRIPT) $(BLINKY_OBJS) $(LIBGCC)
 	-@echo ""
 	@$(SIZE) $(BUILD_DIR)/$(FILENAME).elf
@@ -52,13 +52,17 @@ $(BUILD_DIR)/blinky.elf: $(FILENAME).ld $(BLINKY_OBJS)
 clean:
 	@rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.d
 	@rm -f $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).hex $(BUILD_DIR)/$(FILENAME).bin
+	@rmdir $(BUILD_DIR)
 
-$(BUILD_DIR)/%.o : %.c
+$(BUILD_DIR)/%.o : %.c  | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
+$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	-@echo ""
 	-@echo "Generating $(FILENAME).hex (FlashMagic, etc.)"
 	@$(OBJCOPY) --strip-unneeded -O ihex $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).hex
 	-@echo "Generating $(FILENAME).bin"
 	@$(OBJCOPY) --strip-unneeded -O binary $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).bin
+
+$(BUILD_DIR):
+	mkdir $@
