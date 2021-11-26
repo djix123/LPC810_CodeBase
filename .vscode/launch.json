@@ -25,9 +25,9 @@
             "request": "launch",
             "type": "cortex-debug",
             //"servertype": "jlink",
-            "device" : "LPC810",
+            "device" : "LPC810M021FN8",
             "interface": "swd",
-            "runToMain": true,
+            "runToMain": false,
             "svdFile": "/Users/jgiles/MCU/cmsis-svd/data/NXP/LPC800_v0.3.svd",
             //"servertype": "bmp",
             //"BMPGDBSerialPort": "/dev/cu.usbmodem14601"
@@ -35,7 +35,8 @@
             "configFiles": [
                 "interface/cmsis-dap.cfg",
                 "target/lpc8xx-jg.cfg"
-            ]
+            ],
+            "postDebugTask": "Reset"
         },
      ]
 }
