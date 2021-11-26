@@ -41,3 +41,12 @@ SECTIONS
         _ebss = .;
     } > RAM
 }
+
+PROVIDE(_vStackTop = ORIGIN(RAM) + LENGTH(RAM));
+
+PROVIDE (__valid_user_code_checksum = 0 -
+    (_vStackTop
+    + (ResetISR + 1)
+    + (NMI_Handler + 1)
+    + (HardFault_Handler + 1)
+    ));

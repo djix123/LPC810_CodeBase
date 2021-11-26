@@ -18,10 +18,10 @@
 // Allocated stack space
 //
 //*****************************************************************************
-#define STACKSIZE 64
+// #define STACKSIZE 64
 
-static unsigned int StackMem[STACKSIZE];
-#define _pStackTop ((void *)((unsigned int)StackMem + sizeof(StackMem)))
+// static unsigned int StackMem[STACKSIZE];
+// #define _pStackTop ((void *)((unsigned int)StackMem + sizeof(StackMem)))
 
 //*****************************************************************************
 
@@ -75,6 +75,9 @@ void PININT5_IRQHandler(void) ALIAS(IntDefaultHandler);
 void PININT6_IRQHandler(void) ALIAS(IntDefaultHandler);
 void PININT7_IRQHandler(void) ALIAS(IntDefaultHandler);
 
+WEAK extern void __valid_user_code_checksum();
+WEAK extern void _vStackTop();
+
 //*****************************************************************************
 //
 // The vector table.
@@ -85,14 +88,14 @@ extern void (* const g_pfnVectors[])(void);
 __attribute__ ((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
 	// Core Level - CM0plus
-    _pStackTop, //&_vStackTop,		// The initial stack pointer
+    &_vStackTop,		// The initial stack pointer
     ResetISR,				// The reset handler
     NMI_Handler,			// The NMI handler
     HardFault_Handler,			// The hard fault handler
     0,					// Reserved
     0,					// Reserved
     0,					// Reserved
-    0,					// Reserved
+    __valid_user_code_checksum,					// Checksum
     0,					// Reserved
     0,					// Reserved
     0,					// Reserved
