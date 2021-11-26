@@ -44,14 +44,15 @@
   __CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
 #endif
 
-#define LED_LOCATION    (2)
+#define LED_LOCATION    (1)
+#define USE_LED
 
 /* This define should be enabled if you want to      */
 /* maintain an SWD/debug connection to the LPC810,   */
 /* but it will prevent you from having access to the */
 /* LED on the LPC810 Mini Board, which is on the     */
 /* SWDIO pin (PIO0_2).                               */
-// #define USE_SWD
+#define USE_SWD
 
 void configurePins()
 {
@@ -108,26 +109,30 @@ int main(void)
   configurePins();
 
   /* Set the LED pin to output (1 = output, 0 = input) */
-  #if !defined(USE_SWD)
+  #if defined(USE_LED)
     LPC_GPIO_PORT->DIR0 |= (1 << LED_LOCATION);
   #endif
 
+  uint32_t count = 0;
+
   while(1)
   {
-    #if !defined(USE_SWD)
+    #if defined(USE_LED)
       /* Turn LED Off by setting the GPIO pin high */
       LPC_GPIO_PORT->SET0 = 1 << LED_LOCATION;
-      mrtDelay(500);
+      mrtDelay(50);
 
       /* Turn LED On by setting the GPIO pin low */
       LPC_GPIO_PORT->CLR0 = 1 << LED_LOCATION;
-      mrtDelay(500);
+      mrtDelay(50);
     #else
       /* Just insert a 1 second delay */
       mrtDelay(1000);
     #endif
 
     /* Send some text (printf is redirected to UART0) */
-    printf("Hello, LPC810!\n\r");
+    printf("Count = ");
+    printf("%d", count++);
+    printf("\n\r");
   }
 }
