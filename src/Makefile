@@ -45,14 +45,14 @@ BLINKY_OBJS = $(BUILD_DIR)/main.o \
 all: $(BUILD_DIR)/$(FILENAME).bin
 
 $(BUILD_DIR)/blinky.elf: $(FILENAME).ld $(BLINKY_OBJS) Makefile | $(BUILD_DIR)
-	@$(LD) -o $@ $(LDFLAGS) -T $(LINKERSCRIPT) $(BLINKY_OBJS) $(LIBGCC)
+	@$(LD) -o $@ $(LDFLAGS) -T $(LINKERSCRIPT) -Map $(BUILD_DIR)/$(FILENAME).map $(BLINKY_OBJS) $(LIBGCC)
 	-@echo ""
 	@$(SIZE) $(BUILD_DIR)/$(FILENAME).elf
 
 clean:
 	@rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.d
-	@rm -f $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).hex $(BUILD_DIR)/$(FILENAME).bin
-	@rmdir $(BUILD_DIR)
+	@rm -f $(BUILD_DIR)/$(FILENAME).map $(BUILD_DIR)/$(FILENAME).elf $(BUILD_DIR)/$(FILENAME).hex $(BUILD_DIR)/$(FILENAME).bin
+	@rm -d -f $(BUILD_DIR)
 
 $(BUILD_DIR)/%.o : %.c  | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -66,3 +66,6 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 
 $(BUILD_DIR):
 	mkdir $@
+
+flash:
+	./flash.sh
