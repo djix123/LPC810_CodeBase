@@ -68,4 +68,4 @@ $(BUILD_DIR):
 	mkdir $@
 
 flash:
-	./flash.sh
+	cd ..; ./src/flash.sh
