@@ -124,7 +124,7 @@ int main(void)
 
       /* Turn LED On by setting the GPIO pin low */
       LPC_GPIO_PORT->CLR0 = 1 << LED_LOCATION;
-      mrtDelay(50);
+      mrtDelay(450);
     #else
       /* Just insert a 1 second delay */
       mrtDelay(1000);
